@@ -3,6 +3,7 @@ package org.test.testspring.controleur;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import org.test.testspring.security.JwtService;
 import org.test.testspring.service.AccountSerice;
 import org.test.testspring.service.AccountServiceImpl;
 import org.test.testspring.service.UserDetailImpl;
+import org.test.testspring.service.ValidationService;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @RestController
+@Slf4j
 public class AppUserControleur {
     //private AccountSerice accountSerice;
     @Autowired
@@ -36,6 +39,9 @@ public class AppUserControleur {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtService jwtService;
+    @Autowired
+    private ValidationService validationService;
+
 
 
     @PostMapping(path = "/inscription")
@@ -57,11 +63,16 @@ public class AppUserControleur {
 
         return accountSerice.listUser();
     }
-    @PostMapping(path = "/saveRoletoUser")
-    public void saveRoleTouser(@RequestBody Roleuserform roleuserform){
+    @PostMapping(path = "/deconnexion")
+    public void deconnexion(){
+        jwtService.deconnexion();
 
-         accountSerice.addRoleToUser(roleuserform.getUsername(),roleuserform.getRolename());
     }
+    @PostMapping(path = "/modififiermdp")
+    public void modifiermdp(@RequestBody Map<String, String> activation) {
+        validationService.modifiermdp(activation);
+    }
+
     @PostMapping(path = "/login")
     public Map<String, String> login (@RequestBody Authenficat auth){
 
@@ -74,7 +85,14 @@ public class AppUserControleur {
         return null;
 
             }
+
+    @PostMapping(path = "/nouveaumdp")
+    public void nouveaumdp(@RequestBody Map<String, String> activation) {
+
+        validationService.nouveaumdp(activation);
+    }
 }
+
 @Data
 class Roleuserform{
     public String username;

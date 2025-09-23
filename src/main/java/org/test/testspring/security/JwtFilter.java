@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.test.testspring.entity.Jwt;
 import org.test.testspring.service.AccountServiceImpl;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private AccountServiceImpl utilisateurService;
     private JwtService jwtService;
+    private Jwt jwtdansBd=null;
 
     public JwtFilter(AccountServiceImpl utilisateurService, JwtService jwtService) {
         this.utilisateurService = utilisateurService;
@@ -34,11 +36,13 @@ public class JwtFilter extends OncePerRequestFilter {
         final String authorization = request.getHeader("Authorization");
         if(authorization != null && authorization.startsWith("Bearer ")){
             token = authorization.substring(7);
+            jwtdansBd=this.jwtService.findTokenByValue(token);
             isTokenExpired = jwtService.isTokenExpired(token);
             username = jwtService.extractUsername(token);
         }
 
-        if(!isTokenExpired && username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if(!isTokenExpired && username != null
+                && jwtdansBd.getUser().getUsername().equals(username) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = utilisateurService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);

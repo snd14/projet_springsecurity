@@ -49,7 +49,7 @@ public class AccountServiceImpl implements UserDetailsService {
             throw new RuntimeException("votre email n'est pas valide");
 
         }
-        Optional<AppUser> email =appUserRepository.findByemail(appUser.getEmail());
+        Optional<AppUser> email =appUserRepository.findByEmail(appUser.getEmail());
         if(email.isPresent()){
             throw new RuntimeException("votre email existe deja");
         }
