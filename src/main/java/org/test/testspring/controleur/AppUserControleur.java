@@ -85,12 +85,12 @@ public class AppUserControleur {
 //
 //    }
 
-    //deuxieme facon de gerer les erreurs
-    @GetMapping(path = "/listUsers/{id}")
-    public AppUser users(@PathVariable Long id){
-
-            return accountSerice.userbyid(id);
-    }
+//    //deuxieme facon de gerer les erreurs
+//    @GetMapping(path = "/listUsers/{id}")
+//    public AppUser users(@PathVariable Long id){
+//
+//            return accountSerice.userbyid(id);
+//    }
 
 
     @PostMapping(path = "/deconnexion")
