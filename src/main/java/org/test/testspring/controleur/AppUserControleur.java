@@ -1,17 +1,21 @@
 package org.test.testspring.controleur;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
+import org.test.testspring.dto.ErrorEntity;
+import org.test.testspring.dto.UserDto;
+import org.test.testspring.dto.UsermapDto;
 import org.test.testspring.entity.AppUser;
 import org.test.testspring.entity.AppRole;
 import org.test.testspring.entity.Authenficat;
@@ -23,6 +27,9 @@ import org.test.testspring.service.ValidationService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Data
 @NoArgsConstructor
@@ -59,10 +66,33 @@ public class AppUserControleur {
         return accountSerice.saveRole(appRole);
     }
     @GetMapping(path = "/listUsers")
-    public List<AppUser> users(){
+    public List<UserDto> users(){
 
         return accountSerice.listUser();
     }
+    //premiere facon de gerer les erreurs
+//    @GetMapping(path = "/listUsers/{id}")
+//    public ResponseEntity users(@PathVariable Long id){
+//        try{
+//            AppUser user =accountSerice.userbyid(id);
+//           return ResponseEntity.ok(user) ;
+//
+//        }catch(EntityNotFoundException exception){
+//            String code =null;
+//            return ResponseEntity.status(BAD_REQUEST).body(new ErrorEntity(code,exception.getMessage()));
+//
+//        }
+//
+//    }
+
+    //deuxieme facon de gerer les erreurs
+    @GetMapping(path = "/listUsers/{id}")
+    public AppUser users(@PathVariable Long id){
+
+            return accountSerice.userbyid(id);
+    }
+
+
     @PostMapping(path = "/deconnexion")
     public void deconnexion(){
         jwtService.deconnexion();
@@ -71,6 +101,10 @@ public class AppUserControleur {
     @PostMapping(path = "/modififiermdp")
     public void modifiermdp(@RequestBody Map<String, String> activation) {
         validationService.modifiermdp(activation);
+    }
+    @PostMapping(path = "/refresh-token")
+    public @ResponseBody Map<String, String> refreshtoken(@RequestBody Map<String, String> refreshtoken) {
+        return jwtService.refreshtoken(refreshtoken);
     }
 
     @PostMapping(path = "/login")
@@ -91,6 +125,18 @@ public class AppUserControleur {
 
         validationService.nouveaumdp(activation);
     }
+    //deuxieme methode pour gerer les exceptions
+
+    //et pour la troisieme methode
+    // c'est la methode recommander  on va crer un  controlleur advice et copier la methode ci dessous
+
+//    @ResponseStatus(BAD_REQUEST)
+//    @ExceptionHandler({EntityNotFoundException.class})
+//    public ErrorEntity handleException(EntityNotFoundException exception){
+//
+//        return new ErrorEntity(null,exception.getMessage());
+//
+//    }
 }
 
 @Data

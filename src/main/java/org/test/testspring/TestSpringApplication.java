@@ -1,8 +1,10 @@
 package org.test.testspring;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
@@ -12,5 +14,10 @@ public class TestSpringApplication {
     public static void main(String[] args) {
         SpringApplication. run(TestSpringApplication.class, args);
     }
+    @Bean
+    public ModelMapper modelMapper(){
+        return new ModelMapper();
+    }
+
 
 }

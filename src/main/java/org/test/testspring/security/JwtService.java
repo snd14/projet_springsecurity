@@ -13,16 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.test.testspring.entity.AppUser;
 import org.test.testspring.entity.Jwt;
+import org.test.testspring.entity.Refresktoken;
 import org.test.testspring.repository.JwtRepository;
 import org.test.testspring.service.AccountServiceImpl;
 
 
 import java.security.Key;
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -32,6 +30,7 @@ import java.util.stream.DoubleStream;
 @Service
 public class JwtService {
     public static final String BEARER = "bearer";
+    public static final String REFRESH = "refresh";
     private final String ENCRIPTION_KEY = "608f36e92dc66d97d5933f0e6371493cb4fc05b1aa8f8de64014732472303a7c";
     private AccountServiceImpl utilisateurService;
     private JwtRepository jwtRepository;
@@ -44,16 +43,25 @@ public class JwtService {
     public Map<String, String> generate(String username) {
         AppUser utilisateu = this.utilisateurService.loadUserByUsername(username);
         this.disabledToken(utilisateu);
-       final Map<String, String> jwtMap = this.generateJwt(utilisateu);
+       final Map<String, String> jwtMap = new HashMap<>(this.generateJwt(utilisateu));
+
+        Refresktoken refreshtoken= Refresktoken.builder()
+                .creation(Instant.now())
+                .valeur(UUID.randomUUID().toString())
+                .expiration(Instant.now().plusMillis(30*60*1000))
+                .expire(false)
+                .build();
 
         final Jwt jwt = Jwt
                             .builder()
                             .desactive(false)
                             .value(jwtMap.get(BEARER))
                             .expire(false)
+                            .refreshtoken(refreshtoken)
                             .user(utilisateu)
                             .build();
         jwtRepository.save(jwt);
+        jwtMap.put(REFRESH,refreshtoken.getValeur());
         return jwtMap;
     }
     public void disabledToken(AppUser user) {
@@ -97,7 +105,7 @@ public class JwtService {
 
     private Map<String, String> generateJwt(AppUser utilisateur) {
         final long currentTime = System.currentTimeMillis();
-        final long expirationTime = currentTime + 30 * 60 * 1000;
+        final long expirationTime = currentTime + 10 * 60 * 1000;
 
         final Map<String, Object> claims = Map.of(
                 "nom", utilisateur.getUsername(),
@@ -132,9 +140,17 @@ public class JwtService {
 
     @Scheduled(cron="0 */1 * * * *")
     public void deleteTokenexpiredesactive(){
-        log.info("Suppression des token a {}", Instant.now());
-        jwtRepository.deleteAllByExpireAndDesactive(true,true);
 
+        jwtRepository.deleteAllByExpireAndDesactive(true,true);
     }
 
+    public Map<String, String> refreshtoken(Map<String, String> refreshtoken) {
+        final Jwt jwt=jwtRepository.findjwtByrefreshToken(refreshtoken.get(REFRESH)).orElseThrow(()->new RuntimeException("Token invalide"));
+
+        if (jwt.isExpire() || jwt.getRefreshtoken().getExpiration().isBefore(Instant.now())){
+            throw new RuntimeException("Token invalide");
+        }
+        this.disabledToken(jwt.getUser());
+        return this.generate(jwt.getUser().getUsername());
+    }
 }

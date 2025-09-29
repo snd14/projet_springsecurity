@@ -45,6 +45,7 @@ public class Securityconfig {
                         .requestMatchers(POST,"/activation").permitAll() // Routes publiques
                         .requestMatchers(POST,"/modififiermdp").permitAll() // Routes publiques
                         .requestMatchers(POST,"/nouveaumdp").permitAll() // Routes publiques
+                        .requestMatchers(POST,"/refresh-token").permitAll() // Routes publiques
 
 
                         .anyRequest().authenticated() // Tout le reste doit être authentifié

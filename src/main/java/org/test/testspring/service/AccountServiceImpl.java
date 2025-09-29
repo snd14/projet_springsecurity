@@ -1,10 +1,14 @@
 package org.test.testspring.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.test.testspring.dto.UserDto;
+import org.test.testspring.dto.UsermapDto;
 import org.test.testspring.entity.AppRole;
 import org.test.testspring.entity.AppUser;
 import org.test.testspring.entity.Validation;
@@ -15,6 +19,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -29,6 +35,25 @@ public class AccountServiceImpl implements UserDetailsService {
     @Autowired
     private ValidationService validationService;
 
+//    @Autowired
+//    private UserDto userdto;
+    @Autowired
+    ModelMapper modelMapper;
+
+
+    public UserDto convertEntitytoDto(AppUser appuser){
+            //UserDto userdto=new UserDto();
+        UserDto userdto= modelMapper.map(appuser,UserDto.class);
+            return userdto;
+
+    }
+    @Autowired
+    public AppUser convertDtotoEntity(UserDto userDto){
+        AppUser appuser= new AppUser();
+        appuser=modelMapper.map(userDto,AppUser.class);
+        return  appuser;
+
+    }
     // @Override
    public AppRole saveRole(AppRole appRole){
         return appRoleRepository.save(appRole);
@@ -74,11 +99,18 @@ public class AccountServiceImpl implements UserDetailsService {
         return appUserRepository.findById(id);
 
     };
-   // @Override
-    public List<AppUser> listUser(){
-        return appUserRepository.findAll();
-
-    };
+   // methode DTO sans Model Mapper
+//    public Stream<UsermapDto> listUser(){
+//        return appUserRepository.findAll()
+//                .stream().map(userdto);
+//
+//    };
+       public List<UserDto> listUser(){
+           return appUserRepository.findAll()
+                   .stream()
+                   .map(this::convertEntitytoDto)
+                   .collect(Collectors.toList());
+        };
    // @Override
     public void addRoleToUser (String username,String rolename){
        AppUser appUser= appUserRepository.findByUsername(username);
@@ -89,5 +121,10 @@ public class AccountServiceImpl implements UserDetailsService {
     public AppUser loadUserByUsername(String username){
         return appUserRepository.findByUsername(username);
 
+    }
+
+    public AppUser userbyid(Long id) {
+        Optional<AppUser> user= appUserRepository.findById(id);
+        return user.orElseThrow(()->new EntityNotFoundException("id n'existe pas"));
     }
 }

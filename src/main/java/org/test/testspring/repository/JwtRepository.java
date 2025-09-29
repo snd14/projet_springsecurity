@@ -17,7 +17,13 @@ public interface JwtRepository extends JpaRepository<Jwt,Integer> {
     @Query("FROM Jwt j WHERE j.user.username= :username")
     Stream<Jwt> findUtilisateur(String username);
 
-    //@Query("FROM Jwt j WHERE j.expire =:expire AND j.desactive= :desactive")
+   // @Query("FROM Jwt j WHERE j.expire =:expire AND j.desactive= :desactive")
     void deleteAllByExpireAndDesactive(boolean expire,boolean desactive);
+
+//    @Query("FROM Jwt j WHERE j.expire =:expire AND j.desactive= :desactive")
+//   void deleteAllByExpireAndDesactive(boolean expire,boolean desactive);
+
+    @Query("FROM Jwt j WHERE j.refreshtoken.valeur =:valeur")
+    Optional<Jwt> findjwtByrefreshToken(String valeur);
 
 }

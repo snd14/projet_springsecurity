@@ -1,8 +1,11 @@
 package org.test.testspring.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.test.testspring.entity.AppUser;
 import org.test.testspring.entity.Validation;
 import org.test.testspring.repository.AppUserRepository;
@@ -13,10 +16,10 @@ import java.util.Map;
 import java.util.Random;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
-
+@Slf4j
 @Service
 @AllArgsConstructor
-
+@Transactional
 public class ValidationService {
     private ValidationRepository validationRepository;
     private NotificationService notificationService;
@@ -60,6 +63,11 @@ public class ValidationService {
     }
     public Validation lireEnFonctionDuCode(String code) {
         return this.validationRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Votre code est invalide"));
+    }
+    @Scheduled(cron="*/30 * * * * *")
+    public void deleteTablevalidation(){
+        log.info("Suppression des validation passer a {}", Instant.now());
+        validationRepository.deleteAllByExpirationBefore(Instant.now());
     }
 
 }
