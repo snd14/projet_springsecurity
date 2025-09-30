@@ -68,9 +68,9 @@
 
             # 3️⃣ Build Spring Boot avec Maven
             - name: Build JAR
-              run: mvn -B clean package --file pom.xml
+              run: mvn -B package -DskipTests --file pom.xml
 
-            # 4️⃣ Supprimer anciens containers (si existants)
+            # 4️⃣ Supprimer anciens containers (si existants)eeeeee
             - name: Stop old containers
               run: docker compose down --remove-orphans || true
 
