@@ -1,16 +1,5 @@
 
 services:
-  app:
-    build: .
-    container_name: springboot-app
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/test
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: example
 
   adminer:
     image: adminer

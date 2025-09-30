@@ -83,5 +83,5 @@
               run: docker compose ps
 
             # 7️⃣ Afficher les logs de l'app pour debug rapide
-            - name: Show last 50 logs of app
-              run: docker compose logs --tail=50 app
+            #- name: Show last 50 logs of app
+             # run: docker compose logs --tail=50 app
