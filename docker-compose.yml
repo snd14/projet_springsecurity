@@ -1,40 +1,35 @@
+#services:
+#
+#  db:
+#    image: mysql:5.6
+#    restart: always
+#    ports:
+#      - 3306:3306
+#    environment:
+#      MYSQL_DATABASE: test
+#      MYSQL_ROOT_PASSWORD: example
+#
+#  adminer:
+#    image: adminer
+#    restart: always
+#    ports:
+#      - 9081:8080
+#
+#  smtp4dev:
+#          image: rnwood/smtp4dev:v3
+#          restart: always
+#          ports:
+#            # Change the number before : to the port the web interface should be accessible on
+#            - '9080:80'
+#            # Change the number before : to the port the SMTP server should be accessible on
+#            - '9025:25'
+#            # Change the number before : to the port the IMAP server should be accessible onok ok
+#            - '143:143'
+
+# En ligne
 version: "3.9"
+
 services:
-
-  db:
-    image: mysql:5.6
-    restart: always
-    ports:
-      - 3306:3306
-    environment:
-      MYSQL_DATABASE: test
-      MYSQL_ROOT_PASSWORD: example
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 9081:8080
-    depends_on:
-      db:
-        condition: service_healthy
-
-
-  smtp4dev:
-          image: rnwood/smtp4dev:v3
-          restart: always
-          ports:
-            # Change the number before : to the port the web interface should be accessible on
-            - '9080:80'
-            # Change the number before : to the port the SMTP server should be accessible on
-            - '9025:25'
-            # Change the number before : to the port the IMAP server should be accessible onok ok
-            - '143:143'
   app:
     build: .
     container_name: springboot-app
@@ -48,3 +43,31 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  db:
+    image: mysql:5.6
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_ROOT_PASSWORD: example
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pexample"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "9081:8080"
+
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      - "9080:80"
+      - "9025:25"
+      - "143:143"
