@@ -77,7 +77,7 @@
 
             # 5️⃣ Lancer tous les containers avec docker-compose
             - name: Start containers
-              run: docker compose up -d
+              run: docker compose up -d --build
             - name: List target folder
               run: ls -lh target
 
