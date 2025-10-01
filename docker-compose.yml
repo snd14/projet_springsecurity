@@ -36,7 +36,7 @@ services:
             # Change the number before : to the port the IMAP server should be accessible onok ok
             - '143:143'
   app:
-    build:
+    build: .
     container_name: springboot-app
     ports:
       - "8080:8080"
