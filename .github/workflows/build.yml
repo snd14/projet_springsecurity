@@ -113,6 +113,9 @@ jobs:
 
       - name: Build avec Maven
         run: mvn clean package -DskipTests
+        # 4️⃣ Supprimer anciens containers (si existants)eeeeee
+      - name: Stop old containers
+        run: docker compose down --remove-orphans || true
 
       - name: Build et démarrage des conteneurs
         run: docker compose up -d --build
