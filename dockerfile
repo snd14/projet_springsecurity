@@ -1,7 +1,7 @@
 
 # Étape 1 : image légère Java (plus besoin de Maven ici)
 #ENTRYPOINT ["java", "-jar", "app.jar"]
-Étape 1 : builder le projet avec Maven
+#Étape 1 : builder le projet avec Maven
 FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 COPY pom.xml .
