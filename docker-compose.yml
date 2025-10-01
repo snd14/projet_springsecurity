@@ -1,12 +1,6 @@
 
 services:
 
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 9081:8080
-
   db:
     image: mysql:5.6
     restart: always
@@ -15,6 +9,20 @@ services:
     environment:
       MYSQL_DATABASE: test
       MYSQL_ROOT_PASSWORD: example
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9081:8080
+    depends_on:
+      db:
+        condition: service_healthy
 
 
   smtp4dev:
