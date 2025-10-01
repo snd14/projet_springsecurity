@@ -27,8 +27,6 @@
 #            - '143:143'
 
 # En ligne
-version: "3.9"
-
 services:
   app:
     build: .
