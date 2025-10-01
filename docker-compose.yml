@@ -47,14 +47,20 @@ services:
     restart: always
     ports:
       - "3306:3306"
+
+    volumes:
+      - db_data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: test
       MYSQL_ROOT_PASSWORD: example
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pexample"]
-      interval: 10s
+      interval: 10
       timeout: 5s
       retries: 5
+  volumes:
+    db_data: { }
+
 
   adminer:
     image: adminer
