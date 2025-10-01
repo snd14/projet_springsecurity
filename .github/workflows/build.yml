@@ -42,86 +42,49 @@
         # run: mvn -B package -DskipTests --file pom.xml
 
 
-#      name: Build & Deploy Spring Boot (WSL)
-#
-#      on:
-#        push:
-#          branches:
-#            - main
-#
-#      jobs:
-#        build-and-deploy:
-#          runs-on: [ self-hosted, Linux, X64 ]   # ton runner WSL local
-#
-#          steps:
-#            # 1️⃣ Checkout le code
-#            - name: Checkout repository
-#              uses: actions/checkout@v4
-#
-#            # 2️⃣ Installer JDK 17 et cache Maven
-#            - name: Set up JDK 17
-#              uses: actions/setup-java@v4
-#              with:
-#                java-version: '17'
-#                distribution: 'temurin'
-#                cache: maven
-#
-#            # 3️⃣ Build Spring Boot avec Maven
-#            - name: Build JAR
-#              run: mvn clean package -DskipTests
-#              #run: mvn -B package -DskipTests --file pom.xml
-#
-#            # 4️⃣ Supprimer anciens containers (si existants)eeeeee
-#            - name: Stop old containers
-#              run: docker compose down --remove-orphans || true
-#
-#            # 5️⃣ Lancer tous les containers avec docker-compose
-#            - name: Start containers
-#              run: docker compose up -d --build
-#
-#            - name: List target folder
-#              run: ls -lh target
-#
-#            # 6️⃣ Vérifier que les containers sont bien démarrés
-#            - name: Show running containers
-#              run: docker compose ps
+      name: Build & Deploy Spring Boot (WSL)
+
+      on:
+        push:
+          branches:
+            - main
+
+      jobs:
+        build-and-deploy:
+          runs-on: [ self-hosted, Linux, X64 ]   # ton runner WSL local
+
+          steps:
+            # 1️⃣ Checkout le code
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # 2️⃣ Installer JDK 17 et cache Maven
+            - name: Set up JDK 17
+              uses: actions/setup-java@v4
+              with:
+                java-version: '17'
+                distribution: 'temurin'
+                cache: maven
+
+            # 3️⃣ Build Spring Boot avec Maven
+            - name: Build JAR
+              #run: mvn clean package -DskipTests
+              run: mvn -B package -DskipTests --file pom.xml
+
+            # 4️⃣ Supprimer anciens containers (si existants)
+            - name: Stop old containers
+              run: docker compose down --remove-orphans || true
+
+            # 5️⃣ Lancer tous les containers avec docker-compose
+            - name: Start containers
+              run: docker compose up -d --build
+            - name: List target folder
+              run: ls -lh target
+
+            # 6️⃣ Vérifier que les containers sont bien démarrés
+            - name: Show running containers
+              run: docker compose ps
 
             # 7️⃣ Afficher les logs de l'app pour debug rapide
             #- name: Show last 50 logs of app
              # run: docker compose logs --tail=50 app
-
-name: Build and Deploy
-
-on:
-  push:
-    branches:
-      - main   # Change si ta branche principale est différente
-
-jobs:
-  build-and-deploy:
-    runs-on: self-hosted  # ⚠️ important, car tu utilises ton runner Docker sur Ubuntu
-
-    steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
-
-      - name: Setup JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build avec Maven
-        run: mvn clean package -DskipTests
-        # 4️⃣ Supprimer anciens containers (si existants)eeeeee
-      - name: Stop old containers
-        run: docker compose down --remove-orphans || true
-
-      - name: Build Docker image
-        run: docker build -t springboot-app .
-
-      - name: Start containers
-        run: docker compose up -d
-
-      - name: Vérifier les logs Spring Boot
-        run: docker logs springboot-app --tail=50
